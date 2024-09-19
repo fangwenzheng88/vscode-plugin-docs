@@ -11,7 +11,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -38,6 +40,15 @@
           "icon": "public/static/bot.svg"
         }
       ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "extension.openWebpageInWebview",
+          "group": "navigation",
+          "when": "view == demoSidebar"
+        }
+      ]
     }
   },
   "scripts": {
@@ -46,7 +57,9 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "package": "pnpm run webview-ui:build && pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "webview-ui:dev": "cd webview-ui && pnpm run dev",
+    "webview-ui:build":"cd webview-ui && pnpm run build",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
