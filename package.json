@@ -1,7 +1,7 @@
 {
-  "name": "json2type",
-  "displayName": "json2type",
-  "description": "json转ts类型",
+  "name": "project-docs",
+  "displayName": "project-docs",
+  "description": "项目文档",
   "version": "0.0.1",
   "author": "fangwenzheng",
   "publisher": "fangwenzheng",

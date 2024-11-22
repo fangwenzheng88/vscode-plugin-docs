@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "vant": "^4.9.5",
+    "vditor": "^3.10.6",
     "vue": "^3.4.37"
   },
   "devDependencies": {

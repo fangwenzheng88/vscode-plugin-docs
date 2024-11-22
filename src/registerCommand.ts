@@ -27,12 +27,12 @@ export function registerCommand() {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>在线网站示例</title>
                 <style>
-                    body { margin: 0; padding: 0; }
-                    iframe { width: 100%; height: 100vh; border: none; }
+                    html,body { margin: 0; padding: 0;width: 100vw; height: 100vh; overflow: hidden; }
+                    iframe { width: 100%; height: 100%; border: none; }
                 </style>
             </head>
             <body>
-                <iframe src="https://baidu.com" frameborder="0"></iframe>
+                <iframe src="http://localhost:5173/" frameborder="0"></iframe>
             </body>
             </html>
         `;

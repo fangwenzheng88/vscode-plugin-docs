@@ -5,6 +5,7 @@ import Vant from "vant";
 import "vant/lib/index.css";
 
 const app = createApp(App);
+
 try {
   const vscode = acquireVsCodeApi();
   app.provide("vscode", vscode);
