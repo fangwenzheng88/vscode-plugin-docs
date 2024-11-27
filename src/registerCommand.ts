@@ -90,11 +90,17 @@ export function registerCommands(context: vscode.ExtensionContext) {
   });
 
   const deleteDocs = vscode.commands.registerCommand("projectDocs.deleteDocs", async function (treeItem: TreeItem) {
+    const pick = await vscode.window.showWarningMessage("是否删除当前文档?", { modal: true }, "确认");
+
+    if (pick !== "确认") {
+      return;
+    }
+
     const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, treeItem.path);
 
     const isExist = await fileIsExist(dataDirUri.fsPath);
     if (!isExist) {
-      vscode.window.showInformationMessage("文件不存在");
+      vscode.window.showInformationMessage("文档不存在");
       return;
     }
 
@@ -106,6 +112,12 @@ export function registerCommands(context: vscode.ExtensionContext) {
   const deleteProject = vscode.commands.registerCommand(
     "projectDocs.deleteProject",
     async function (treeItem: TreeItem) {
+      const pick = await vscode.window.showWarningMessage("是否删除当前项目?", { modal: true }, "确认");
+
+      if (pick !== "确认") {
+        return;
+      }
+
       const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, treeItem.path);
 
       const isExist = await fileIsExist(dataDirUri.fsPath);

@@ -57,7 +57,7 @@
       },
       {
         "command": "projectDocs.deleteDocs",
-        "title": "项目文档: 删除项目",
+        "title": "项目文档: 删除文档",
         "icon": {
           "light": "public/static/delete-light.svg",
           "dark": "public/static/delete-dark.svg"
