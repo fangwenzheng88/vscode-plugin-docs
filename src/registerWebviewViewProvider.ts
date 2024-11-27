@@ -33,7 +33,6 @@ class MyWebviewViewProvider implements vscode.WebviewViewProvider {
       fetch("http://localhost:5173/")
         .then((response) => response.text())
         .then((data) => {
-          console.log("🚀 ~ MyWebviewViewProvider ~ fetch ~ data:", data);
           webviewView.webview.html = data
             .replace(/<base href=".*?">/i, `<base href="http://localhost:5173/">`)
             .replace(/"\/@vite\/client"/i, `"http://localhost:5173/@vite/client"`);
@@ -44,7 +43,6 @@ class MyWebviewViewProvider implements vscode.WebviewViewProvider {
 
     // 处理从 Webview 发送的消息
     webviewView.webview.onDidReceiveMessage((message: any) => {
-      console.log("🚀 ~ MyWebviewViewProvider ~ webviewView.webview.onDidReceiveMessage ~ message:", message);
       switch (message.command) {
         case "alert":
           vscode.window.showInformationMessage(message.text);

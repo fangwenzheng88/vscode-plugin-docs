@@ -1,36 +1,26 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { registerWebviewViewProvider } from "./registerWebviewViewProvider";
-import { registerCommand } from "./registerCommand";
+import { registerCommands } from "./registerCommand";
+import { TestView } from "./test-view";
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "json2type" is now active!');
+  console.log('Congratulations, your extension "project-docs" is now active!');
 
-  context.subscriptions.push(registerWebviewViewProvider(context));
+  context.subscriptions.push(...registerCommands(context));
 
-  context.subscriptions.push(registerCommand());
+  new TestView(context);
 
-  // 获取全局存储的 URI
-  const globalStorageUri = context.globalStorageUri;
+  vscode.commands.executeCommand("projectDocs.refreshTree");
 
-  // 创建一个子目录
-  const dataDirName = "myplugin_data";
-  const dataDirUri = vscode.Uri.joinPath(globalStorageUri, dataDirName);
-  console.log("🚀 ~ activate ~ dataDirUri:", dataDirUri);
-
-  // 创建目录
-  vscode.workspace.fs.createDirectory(dataDirUri).then(
-    () => {
-      console.log(`Directory created at: ${dataDirUri.fsPath}`);
-    },
-    (error) => {
-      console.error("Failed to create directory:", error);
+  let disposable = vscode.commands.registerCommand("projectDocs.openFolderInNewWindow", async (uri: vscode.Uri) => {
+    if (uri.scheme === "file" && uri.fsPath) {
+      const folderPath = uri.fsPath;
+      await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(folderPath), true);
     }
-  );
+  });
 
-  const env = process.env.VSCODE_ENV;
-  console.log("🚀 ~ env:", env);
+  context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated

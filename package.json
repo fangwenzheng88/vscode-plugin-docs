@@ -1,6 +1,6 @@
 {
   "name": "project-docs",
-  "displayName": "project-docs",
+  "displayName": "Project Docs",
   "description": "项目文档",
   "version": "0.0.1",
   "author": "fangwenzheng",
@@ -14,39 +14,106 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "icon": "./icon.png",
+  "readme": "README.md",
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.openWebpageInWebview",
-        "title": "打开新标签页"
+        "command": "projectDocs.openFolderInNewWindow",
+        "title": "在VSCode中打开"
+      },
+      {
+        "command": "projectDocs.saveProject",
+        "title": "项目文档: 保存项目",
+        "icon": {
+          "light": "public/static/save-light.svg",
+          "dark": "public/static/save-dark.svg"
+        }
+      },
+      {
+        "command": "projectDocs.deleteProject",
+        "title": "项目文档: 删除项目",
+        "icon": {
+          "light": "public/static/delete-light.svg",
+          "dark": "public/static/delete-dark.svg"
+        }
+      },
+      {
+        "command": "projectDocs.openDocs",
+        "title": "项目文档: 打开文档",
+        "icon": {
+          "light": "public/static/save-light.svg",
+          "dark": "public/static/save-dark.svg"
+        }
+      },
+      {
+        "command": "projectDocs.createDocs",
+        "title": "项目文档: 创建文档",
+        "icon": {
+          "light": "public/static/add-light.svg",
+          "dark": "public/static/add-dark.svg"
+        }
+      },
+      {
+        "command": "projectDocs.deleteDocs",
+        "title": "项目文档: 删除项目",
+        "icon": {
+          "light": "public/static/delete-light.svg",
+          "dark": "public/static/delete-dark.svg"
+        }
+      },
+      {
+        "command": "projectDocs.refreshTree",
+        "title": "项目文档: 刷新项目"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "demo",
-          "title": "这是个一个插件",
-          "icon": "public/static/bot.svg"
+          "id": "project-docs",
+          "title": "文档",
+          "icon": "public/static/menu.svg"
         }
       ]
     },
     "views": {
-      "demo": [
+      "project-docs": [
         {
-          "type": "webview",
-          "id": "demoSidebar",
-          "name": "这是个一个插件",
-          "icon": "public/static/bot.svg"
+          "id": "projectDocs.treeView",
+          "name": "文档"
         }
       ]
     },
     "menus": {
+      "explorer/context": [
+        {
+          "command": "projectDocs.openFolderInNewWindow",
+          "when": "resourceScheme == file && explorerResourceIsFolder"
+        }
+      ],
       "view/title": [
         {
-          "command": "extension.openWebpageInWebview",
+          "command": "projectDocs.saveProject",
           "group": "navigation",
-          "when": "view == demoSidebar"
+          "when": "view == projectDocs.treeView"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "projectDocs.createDocs",
+          "when": "view == projectDocs.treeView && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "projectDocs.deleteProject",
+          "when": "view == projectDocs.treeView && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "projectDocs.deleteDocs",
+          "when": "view == projectDocs.treeView && viewItem == file",
+          "group": "inline"
         }
       ]
     }
@@ -57,9 +124,9 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "pnpm run webview-ui:build && pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
     "webview-ui:dev": "cd webview-ui && pnpm run dev",
-    "webview-ui:build":"cd webview-ui && pnpm run build",
+    "webview-ui:build": "cd webview-ui && pnpm run build",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",

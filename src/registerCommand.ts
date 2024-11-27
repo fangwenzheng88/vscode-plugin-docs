@@ -1,43 +1,133 @@
 import * as vscode from "vscode";
+import { createFile, deleteFile, fileIsExist, getCurrentWorkspaceFolderName, openFile, readJsonFile } from "./utils";
 
-export function registerCommand() {
-  return vscode.commands.registerCommand("extension.openWebpageInWebview", async function () {
-    // 创建Webview选项
-    const webviewOptions = {
-      enableScripts: true,
-      retainContextWhenHidden: true,
-    };
+import { type TreeItem } from "./test-view";
 
-    // 创建Webview面板
-    const panel = vscode.window.createWebviewPanel("myWebview", "在线网站示例", vscode.ViewColumn.One, webviewOptions);
+export function registerCommands(context: vscode.ExtensionContext) {
+  const saveDocs = vscode.commands.registerCommand("projectDocs.saveProject", async function () {
+    const workspaceName = getCurrentWorkspaceFolderName();
+    if (!workspaceName) {
+      vscode.window.showInformationMessage("请先打开项目");
+      return;
+    }
 
-    // 获取Webview对象
-    const webview = panel.webview;
+    const fileContent = await vscode.window.showInputBox({
+      prompt: "输入项目名称",
+      value: workspaceName,
+      placeHolder: "Type your content here",
+    });
 
-    // 设置Webview的安全上下文
-    // 注意：使用webview.cspSource来创建一个安全的CSP源
-    const cspSource = webview.cspSource;
+    if (fileContent) {
+      const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, "projects.json");
 
-    // 构建HTML内容，包括加载外部网站
-    const html = `
-            <!DOCTYPE html>
-            <html lang="zh-CN">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>在线网站示例</title>
-                <style>
-                    html,body { margin: 0; padding: 0;width: 100vw; height: 100vh; overflow: hidden; }
-                    iframe { width: 100%; height: 100%; border: none; }
-                </style>
-            </head>
-            <body>
-                <iframe src="http://localhost:5173/" frameborder="0"></iframe>
-            </body>
-            </html>
-        `;
+      const isExist = await fileIsExist(dataDirUri.fsPath);
+      if (!isExist) {
+        await createFile(dataDirUri.fsPath, "[]");
+      }
 
-    // 将HTML内容设置给Webview
-    webview.html = html;
+      const projectList = await readJsonFile(dataDirUri.fsPath);
+
+      if (projectList) {
+        const idx = projectList.findIndex((el: any) => el.name === workspaceName);
+        if (idx === -1) {
+          const treeItem: TreeItem = {
+            label: fileContent,
+            name: workspaceName,
+            path: workspaceName,
+            type: "folder",
+            iconPath: {
+              light: "public/static/folder-light.svg",
+              dark: "public/static/folder-dark.svg",
+            },
+          };
+          projectList.push(treeItem);
+        }
+        await createFile(vscode.Uri.joinPath(context.globalStorageUri, `${workspaceName}/REAME.md`).fsPath, "");
+        await openFile(vscode.Uri.joinPath(context.globalStorageUri, `${workspaceName}/REAME.md`).fsPath);
+        await createFile(dataDirUri.fsPath, JSON.stringify(projectList));
+      }
+
+      await vscode.commands.executeCommand("projectDocs.refreshTree");
+    } else {
+      vscode.window.showInformationMessage(workspaceName, "项目已存在");
+    }
   });
+
+  const createDocs = vscode.commands.registerCommand("projectDocs.createDocs", async function (treeItem: TreeItem) {
+    const fileContent = await vscode.window.showInputBox({
+      prompt: "输入文档名称",
+      value: "",
+      placeHolder: "Type your content here",
+    });
+
+    if (!fileContent) {
+      return;
+    }
+
+    const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, treeItem.path, fileContent + ".md");
+
+    const isExist = await fileIsExist(dataDirUri.fsPath);
+    if (isExist) {
+      vscode.window.showInformationMessage("文件已存");
+      return;
+    }
+
+    await createFile(dataDirUri.fsPath, "");
+
+    await vscode.commands.executeCommand("projectDocs.refreshTree");
+  });
+
+  const openDocs = vscode.commands.registerCommand("projectDocs.openDocs", async function (filePath) {
+    const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, filePath);
+
+    const isExist = await fileIsExist(dataDirUri.fsPath);
+    if (!isExist) {
+      vscode.window.showInformationMessage("文件不存在");
+      return;
+    }
+
+    return openFile(dataDirUri.fsPath);
+  });
+
+  const deleteDocs = vscode.commands.registerCommand("projectDocs.deleteDocs", async function (treeItem: TreeItem) {
+    const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, treeItem.path);
+
+    const isExist = await fileIsExist(dataDirUri.fsPath);
+    if (!isExist) {
+      vscode.window.showInformationMessage("文件不存在");
+      return;
+    }
+
+    await deleteFile(dataDirUri.fsPath);
+
+    vscode.commands.executeCommand("projectDocs.refreshTree");
+  });
+
+  const deleteProject = vscode.commands.registerCommand(
+    "projectDocs.deleteProject",
+    async function (treeItem: TreeItem) {
+      const dataDirUri = vscode.Uri.joinPath(context.globalStorageUri, treeItem.path);
+
+      const isExist = await fileIsExist(dataDirUri.fsPath);
+      if (isExist) {
+        await deleteFile(dataDirUri.fsPath);
+      }
+
+      const projectList = await readJsonFile(vscode.Uri.joinPath(context.globalStorageUri, "projects.json").fsPath);
+
+      if (projectList) {
+        const idx = projectList.findIndex((el: any) => el.name === treeItem.name);
+        if (idx !== -1) {
+          projectList.splice(idx, 1);
+        }
+        await createFile(
+          vscode.Uri.joinPath(context.globalStorageUri, "projects.json").fsPath,
+          JSON.stringify(projectList)
+        );
+      }
+
+      await vscode.commands.executeCommand("projectDocs.refreshTree");
+    }
+  );
+  return [saveDocs, createDocs, openDocs, deleteDocs, deleteProject];
 }
