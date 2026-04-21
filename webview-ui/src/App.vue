@@ -2,7 +2,7 @@
 import VueEditor from "./components/vue-editor.vue";
 import { inject } from "vue";
 
-const vscode: any = inject("vscode");
+inject("vscode");
 </script>
 
 <template>
