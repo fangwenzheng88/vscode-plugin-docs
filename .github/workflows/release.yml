@@ -32,8 +32,8 @@ jobs:
       - name: 安装根目录依赖
         run: pnpm install --no-frozen-lockfile
 
-      - name: 安装 webview-ui 依赖（忽略内网锁文件地址）
-        run: cd webview-ui && pnpm install --no-frozen-lockfile
+      - name: 安装 webview-ui 依赖
+        run: cd webview-ui && pnpm install
 
       - name: 构建 webview-ui
         run: pnpm run webview-ui:build
