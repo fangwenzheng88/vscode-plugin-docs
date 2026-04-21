@@ -5,7 +5,7 @@ import "vditor/dist/index.css";
 
 const rootRef = ref<HTMLDivElement>();
 onMounted(() => {
-  const contentEditor = new Vditor(rootRef.value, {
+  const contentEditor = new Vditor(rootRef.value!, {
     height: 360,
     toolbarConfig: {
       pin: true,
