@@ -1,0 +1,62 @@
+name: 发布 Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: 安装根目录依赖
+        run: pnpm install --no-frozen-lockfile
+
+      - name: 安装 webview-ui 依赖
+        run: cd webview-ui && pnpm install
+
+      - name: 构建 webview-ui
+        run: pnpm run webview-ui:build
+
+      - name: 打包插件
+        run: pnpm run package
+
+      - name: 生成 .vsix 安装包
+        run: npx @vscode/vsce package --no-dependencies
+
+      - name: 获取版本号
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: 创建 GitHub Release 并上传 .vsix
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## v${{ steps.version.outputs.VERSION }}
+
+            ### 安装方式
+            1. 下载下方的 `.vsix` 文件
+            2. 在 VSCode 中按 `Ctrl+Shift+P`，输入 `Install from VSIX`
+            3. 选择下载的文件即可安装
+          files: |
+            *.vsix
+          draft: false
+          prerelease: false
