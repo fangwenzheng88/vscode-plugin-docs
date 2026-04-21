@@ -31,8 +31,8 @@ class MyWebviewViewProvider implements vscode.WebviewViewProvider {
 
     if (isDevelopment) {
       fetch("http://localhost:5173/")
-        .then((response) => response.text())
-        .then((data) => {
+        .then((response: any) => response.text())
+        .then((data: any) => {
           webviewView.webview.html = data
             .replace(/<base href=".*?">/i, `<base href="http://localhost:5173/">`)
             .replace(/"\/@vite\/client"/i, `"http://localhost:5173/@vite/client"`);
